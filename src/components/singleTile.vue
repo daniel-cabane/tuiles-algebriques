@@ -1,17 +1,17 @@
 <template>
-<v-hover v-slot="{ hover }">
-  <v-card tile flat :width='tileWidth' :height="tileHeight" :color="tileColor" style='display:flex;align-content:center;justify-content:center;font-family:"Times new roman";font-style: italic;'>
-        <div style='position:absolute;width:100%;height:100%;display:flex;flex-direction:column;justify-content:space-between' :class='hover ? "font-weight-bold" : ""'>
-            <div style='font-size:16px;'>{{ h }}</div>
-            <div style='font-size:16px;text-align:right;padding-right:5px'><i>{{ v }}</i></div>
-            <div style='visibility:hidden'>hidden</div>
-        </div>
-        <span style='font-size:72px;display:flex;align-items:center' v-html='centerText'></span>
-        <v-btn fab icon x-small color='black' style='position:absolute;left:0px;top:0px' @click='deleteMe' v-if='hover'>
-            <v-icon>{{ svgPath }}</v-icon>
-        </v-btn>
-    </v-card>
-</v-hover>
+    <v-hover v-slot="{ hover }">
+        <v-card tile flat :width='tileWidth' :height="tileHeight" :color="tileColor" style='display:flex;align-content:center;justify-content:center;font-family:"Times new roman";font-style: italic;'>
+            <div style='position:absolute;width:100%;height:100%;display:flex;flex-direction:column;justify-content:space-between' :class='hover ? "font-weight-bold" : ""'>
+                <div style='font-size:16px;'>{{ h }}</div>
+                <div style='font-size:16px;text-align:right;padding-right:5px'><i>{{ v }}</i></div>
+                <div style='visibility:hidden'>hidden</div>
+            </div>
+            <span style='font-size:72px;display:flex;align-items:center' v-html='centerText'></span>
+            <v-btn fab icon x-small color='black' style='position:absolute;left:0px;top:0px' @click='deleteMe' v-if='hover'>
+                <v-icon>{{ svgPath }}</v-icon>
+            </v-btn>
+        </v-card>
+    </v-hover>
 </template>
 
 <script>
