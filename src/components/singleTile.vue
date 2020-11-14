@@ -7,20 +7,28 @@
                 <div style='visibility:hidden'>hidden</div>
             </div>
             <span style='font-size:72px;display:flex;align-items:center' v-html='centerText'></span>
-            <v-btn fab icon x-small color='black' style='position:absolute;left:0px;top:0px' @click='deleteMe' v-if='hover'>
-                <v-icon>{{ svgPath }}</v-icon>
+            <v-btn icon color='black' style='position:absolute;left:-5px;top:-5px' @click='deleteMe' v-if='hover'>
+                <v-icon small>{{ svgPath }}</v-icon>
+            </v-btn>
+            <v-btn icon color='black' style='position:absolute;right:0px;top:0px' @click='rotateMe' v-if='hover && v=="x" && h=="1"'>
+                <v-icon small>{{ rotateLandscape }}</v-icon>
+            </v-btn>
+            <v-btn icon color='black' style='position:absolute;right:0px;top:0px' @click='rotateMe' v-if='hover && v=="1" && h=="x"'>
+                <v-icon small>{{ rotatePortrait }}</v-icon>
             </v-btn>
         </v-card>
     </v-hover>
 </template>
 
 <script>
-import { mdiDelete } from '@mdi/js';
+import { mdiDelete, mdiPhoneRotateLandscape, mdiPhoneRotatePortrait } from '@mdi/js';
 
 export default {
     props: { h: String, v: String, id: Number },
     data: () => ({
       svgPath: mdiDelete,
+      rotateLandscape: mdiPhoneRotateLandscape,
+      rotatePortrait: mdiPhoneRotatePortrait
     }),
     computed: {
         centerText(){
@@ -51,6 +59,9 @@ export default {
     methods: {
         deleteMe(){
             this.eventBus.$emit('deleteTile', this.id);
+        },
+        rotateMe(){
+            this.eventBus.$emit('rotateTile', this.id);
         }
     }
 }

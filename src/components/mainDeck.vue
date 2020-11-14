@@ -15,7 +15,6 @@
                 </v-card-actions>
               </v-card>
             </v-dialog>
-            <div class='text-center headline mb-2'>Ajouter des tuiles</div>
             <div style='display:flex;justify-content:space-around;align-items:center'>
               <v-card 
                 tile hover v-ripple
@@ -26,7 +25,7 @@
                 class='text-h3'
                 style='display:flex;align-content:center;justify-content:center;'
               >
-                <span style='font-family:"Brush Script MT";display:flex;align-items:center'>
+                <span style='font-family:"Times new roman";font-style:italic;display:flex;align-items:center'>
                   <span style="margin-bottom:15px;">
                     x
                     <span style="vertical-align:super;font-size:50%;margin-left:-10px">
@@ -44,7 +43,7 @@
                 class='text-h3'
                 style='display:flex;align-content:center;justify-content:center;'
               >
-                <span style='font-family:"Brush Script MT";display:flex;align-items:center'>
+                <span style='font-family:"Times new roman";font-style:italic;display:flex;align-items:center'>
                   <span style="margin-bottom:10px;">x</span>
                 </span>
               </v-card>
@@ -57,7 +56,7 @@
                 class='text-h3'
                 style='display:flex;align-content:center;justify-content:center;'
               >
-                <span style='font-family:"Brush Script MT";display:flex;align-items:center'>
+                <span style='font-family:"Times new roman";font-style:italic;display:flex;align-items:center'>
                   <span style="margin-bottom:10px;">x</span>
                 </span>
               </v-card>
@@ -67,10 +66,10 @@
                 width='55' 
                 height="55" 
                 color="grey" 
-                class='text-h3'
+                class='text-h4'
                 style='display:flex;align-content:center;justify-content:center;'
               >
-                <span style='font-family:"Brush Script MT";display:flex;align-items:center'>
+                <span style='font-family:"Times new roman";;display:flex;align-items:center'>
                   1
                 </span>
               </v-card>
@@ -111,6 +110,22 @@
           let newGroup = [];
           group.forEach(tile => {
             if(tile.id != id) newGroup.push(tile);
+          });
+          this.tileGroups.push(newGroup);
+        });
+        this.checkGroups();
+      });
+      this.eventBus.$on('rotateTile', id => {
+         let tempArray = this.tileGroups;
+        this.tileGroups = [];
+        tempArray.forEach(group => {
+          let newGroup = [];
+          group.forEach(tile => {
+            if(tile.id == id){
+              newGroup.push({h: tile.v, v: tile.h, id: tile.id});
+            } else {
+              newGroup.push(tile);
+            }
           });
           this.tileGroups.push(newGroup);
         });
