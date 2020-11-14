@@ -1,3 +1,9 @@
 module.exports = {
-  publicPath: 'tuiles-algebriques'
+  "transpileDependencies": [
+    "vuetify"
+  ],
+  outputDir: "docs",
+  publicPath: process.env.NODE_ENV === 'production'
+    ? '/tuiles-algebriques/'
+    : '/'
 }
