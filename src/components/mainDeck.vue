@@ -66,46 +66,45 @@
               >
                 <span style='font-family:"Times new roman";display:flex;align-items:center'>
                   <span :style="{'margin-bottom': button.botAdjust+'px'}">
-                    <span style='vertical-align:text-top;margin-left:5px' v-if='!inputPositive'>–</span>
-                    <span :style="{'font-style': button.italic ? 'italic' : ''}" class='mr-3 ml-1'>{{ button.text }}</span>
-                    <sup style='margin-left:-10px;font-size:60%' v-if='button.exp'>2</sup>
+                    <span style='vertical-align:text-top;' v-if='!inputPositive'>–</span>
+                    <span :style="{'font-style': button.italic ? 'italic' : ''}">{{ button.text }}</span>
+                    <sup style='font-size:60%' v-if='button.exp'>2</sup>
                   </span>
                 </span>
               </v-card>
             </div>
           </v-card>
       </v-col>
-      <v-col cols="12" style='display:flex'>
-        <span v-for='(tileGroup, index) in tileGroups' :key='`group-${index}`' style='display:flex'>
-          <span>
-            <draggable group="tiles" @start="drag=true" @end="drag=false" :list="tileGroup"  @change='checkGroups'>
-              <singleTile
-              v-for="tile in tileGroup" :key="tile.id"
-              :h='tile.h'
-              :v='tile.v'
-              :positive='tile.positive'
-              :borderColor='tile.pair'
-              :id='tile.id'/>
-            </draggable>
-            <v-btn icon large color='black' @click='simplifyGroup(index)' v-if='simplifiableGroups[index]'>
-              <v-icon large>{{ upIcon }}</v-icon>
-            </v-btn>
-          </span>
-          <span style='width:10px' v-if="margins[index]"></span>
-        </span>
+      <v-col cols="12" class='pb-0' style='display:flex'>
+        <div style='width:40px'></div>
+        <groupDimension
+          v-for='(dim, index) in groupsHzDims' :key='index'
+          :xes='dim.xes'
+          :ones='dim.ones'
+          style='margin-right:40px'
+        />
+      </v-col>
+      <v-col cols="12" class='pt-1' style='display:flex'>
+        <tileStack
+          v-for='(tileGroup, index) in tileGroups' :key='`group-${index}`'
+          :tileGroup='tileGroup'
+          :index='index'
+          :margin='margins[index]'
+          :simplifiable='simplifiableGroups[index]'
+        />
       </v-col>
     </v-row>
   </v-container>
 </template>
 
 <script>
-  import draggable from 'vuedraggable';
-  import singleTile from './singleTile';
-  import { mdiDelete, mdiDotsVertical, mdiCloseThick, mdiArrowLeftRightBold, mdiPlusMinusVariant, mdiArrowUpBoldOutline } from '@mdi/js';
+  import tileStack from './tileStack';
+  import groupDimension from './groupDimension';
+  import { mdiDelete, mdiDotsVertical, mdiCloseThick, mdiArrowLeftRightBold, mdiPlusMinusVariant } from '@mdi/js';
   import tileSpecs from '../tileSpecs';
 
   export default {
-    components: { draggable, singleTile },
+    components: { tileStack, groupDimension },
     name: 'mainDeck',
     data: () => ({
       svgPathDelete: mdiDelete,
@@ -113,12 +112,12 @@
       svgPathMult: mdiCloseThick,
       svgPathFlat: mdiArrowLeftRightBold,
       pmIcon: mdiPlusMinusVariant,
-      upIcon: mdiArrowUpBoldOutline,
       inputPositive: true,
       deleteDialog: false,
       multDialog: false,
       multFactor: 1,
       tileGroups: [[], []],
+      groupBases: [],
       margins: [true],
       multFormValid: true,
       multRules: [
@@ -133,6 +132,24 @@
       ]
     }),
     computed:{
+      groupsHzDims(){
+        let dims = [];
+        let currentDim = {xes: 0, ones: 0};
+        this.tileGroups.forEach((group, index) => {
+          if(group.length > 0) {
+            if(group[0].h == 'x'){
+              currentDim.xes += group[0].positive.h ? 1 : -1;
+            } else {
+              currentDim.ones += group[0].positive.h ? 1 : -1;
+            }
+            if(this.margins[index+1]){
+              dims.push(currentDim);
+              currentDim = {xes: 0, ones: 0};
+            }
+          }
+        });
+        return dims;
+      },
       tileButtons(){
         let btns = [];
         ["xx", "x1", "1x", "11"].forEach(type => {
@@ -174,6 +191,8 @@
       }
     },
     mounted(){
+      this.eventBus.$on('simplifyGroup', this.simplifyGroup);
+      this.eventBus.$on('checkGroups', this.checkGroups);
       this.eventBus.$on('deleteTile', id => {
          let tempArray = this.tileGroups;
         this.tileGroups = [];
@@ -193,7 +212,7 @@
           let newGroup = [];
           group.forEach(tile => {
             if(tile.id == id){
-              newGroup.push({h: tile.v, v: tile.h, positive: tile.positive, pair:tile.pair,id: tile.id});
+              newGroup.push({h: tile.v, v: tile.h, positive: {h: tile.positive.v, v: tile.positive.h}, pair:tile.pair, id: tile.id});
             } else {
               newGroup.push(tile);
             }
@@ -209,7 +228,13 @@
           let newGroup = [];
           group.forEach(tile => {
             if(tile.id == id){
-              newGroup.push({v: tile.v, h: tile.h, positive: !tile.positive, pair:tile.pair, id: tile.id});
+              newGroup.push({
+                v: tile.v,
+                h: tile.h,
+                positive: {h: tile.positive.h && tile.positive.v || !tile.positive.h && !tile.positive.v, v: !tile.positive.v},
+                pair:tile.pair,
+                id: tile.id
+              });
             } else {
               newGroup.push(tile);
             }
@@ -220,6 +245,9 @@
       });
     },
     methods:{
+      isPositive(tile){
+        return tile.positive.v && tile.positive.h || !tile.positive.v && !tile.positive.h;
+      },
       simplifyGroup(index){
         let temp = this.tileGroups[index];
         this.tileGroups[index] = [];
@@ -244,7 +272,7 @@
           }
         });
         this.tileGroups.push([]);
-        this.margins = [];
+        this.margins = [true];
         for(let i=0; i<this.tileGroups.length; i++){
           this.margins.push(!this.compareGroups(i));
         }
@@ -263,7 +291,7 @@
             if(pair.length == 1){
               pair[0].pair = null;
             } else {
-              if(pair[0].positive == pair[1].positive){
+              if(this.isPositive(pair[0]) == this.isPositive(pair[1])){
                 pair[0].pair = null;
                 pair[1].pair = null;
               }
@@ -271,7 +299,7 @@
           })
           group.forEach(tile1 => {
             group.forEach(tile2 => {
-              if((tile1.v == tile2.v && tile1.h == tile2.h || tile1.v == tile2.h && tile1.h == tile2.v) && tile1.positive == !tile2.positive && tile1.pair == null && tile2.pair == null){
+              if((tile1.v == tile2.v && tile1.h == tile2.h || tile1.v == tile2.h && tile1.h == tile2.v) && this.isPositive(tile1) == !this.isPositive(tile2) && tile1.pair == null && tile2.pair == null){
                 let pairColor = null;
                 while(pairColor == null){
                   const pickedSet = this.pairSets[Math.floor(Math.random()*this.pairSets.length)];
@@ -294,17 +322,17 @@
         if(!this.isConsistent(group1) || !this.isConsistent(group2)) return false;
         if(group1.length != group2.length) return false;
         for(let i=0; i<group1.length; i++){
-          if(group1[i].v != group2[i].v) return false;
+          if(group1[i].v != group2[i].v || group1[i].positive.v != group2[i].positive.v) return false;
         }
         return true;
       },
       isConsistent(group){
         if(group.length == 0) return false;
         let ref = group[0].h;
-        let signRef = group[0].positive
+        let signRef = group[0].positive.h
         let consistent = true;
         group.forEach(tile => {
-          if(tile.h != ref || tile.positive != signRef) {
+          if(tile.h != ref || tile.positive.h != signRef) {
             consistent = false;
           }
         });
@@ -325,9 +353,9 @@
           k--;
         }
         if(this.tileGroups[k][0] == undefined || (this.tileGroups[k][0].h == newH && this.tileGroups[k][0].v == newV)){
-          this.tileGroups[k].push({v: newV, h: newH, positive: this.inputPositive, pair: null, id: newId});
+          this.tileGroups[k].push({v: newV, h: newH, positive: {h: true, v: this.inputPositive}, pair: null, id: newId});
         } else {
-          this.tileGroups.push([{v: newV, h: newH, positive: this.inputPositive, pair: null, id: newId}]);
+          this.tileGroups.push([{v: newV, h: newH, positive: {h: true, v: this.inputPositive}, pair: null, id: newId}]);
         }
         this.checkGroups();
       },
@@ -368,20 +396,3 @@
     }
   }
 </script>
-
-<style>
-  .bounceOut {
-    animation: bounceOut;
-    @keyframes bounceOut {
-      0% {
-        transform: scale(0);
-      }
-      50% {
-        transform: scale(1.5);
-      }
-      100% {
-        transform: scale(1);
-      }
-    }
-  }
-</style>

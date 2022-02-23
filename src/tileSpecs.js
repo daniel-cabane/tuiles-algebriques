@@ -3,25 +3,25 @@ const tileSpecs = {
         text: '1',
         positive: true,
         exp: null,
-        color: '#aaaaaa',
+        color: '#E4FBFF',
         fontColor: 'black',
         italic: false,
-        botAdjust: 0
+        botAdjust: 10
     },
     negativeOne: {
         text: '1',
         positive: false,
         exp: null,
-        color: '#555555',
+        color: '#398AB9',
         fontColor: 'white',
         italic: false,
-        botAdjust: 0
+        botAdjust: 10
     },
     positiveX: {
         text: 'x',
         positive: true,
         exp: null,
-        color: '#0282f9',
+        color: '#FFFDDE',
         fontColor: 'black',
         italic: true,
         botAdjust: 10
@@ -30,7 +30,7 @@ const tileSpecs = {
         text: 'x',
         positive: false,
         exp: null,
-        color: '#00284f',
+        color: '#FFC900',
         fontColor: 'white',
         italic: true,
         botAdjust: 10
@@ -39,7 +39,7 @@ const tileSpecs = {
         text: 'x',
         positive: true,
         exp: '2',
-        color: '#e20022',
+        color: '#FF7878',
         fontColor: 'black',
         italic: true,
         botAdjust: 10
@@ -48,7 +48,7 @@ const tileSpecs = {
         text: 'x',
         positive: false,
         exp: '2',
-        color: '#59000e',
+        color: '#F76E11',
         fontColor: 'white',
         italic: true,
         botAdjust: 10
