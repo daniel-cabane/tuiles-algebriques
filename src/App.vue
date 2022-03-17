@@ -1,5 +1,5 @@
 <template>
-  <v-app>
+  <v-app style='background:#b4ecb4'>
     <v-app-bar app color="primary" class="headline" dark>
       Tuiles algébriques
     </v-app-bar>

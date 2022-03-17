@@ -21,6 +21,14 @@
                   <v-list-item-avatar><v-icon :color='!isFlat ? "grey lighten-1" : "black"'>{{ svgPathMult }}</v-icon></v-list-item-avatar>
                   <v-list-item-content>Multiplier</v-list-item-content>
                 </v-list-item>
+                <v-list-item @click='insertDialog = true'>
+                  <v-list-item-avatar><v-icon color='black'>{{ svgPathAdd }}</v-icon></v-list-item-avatar>
+                  <v-list-item-content>Insérer</v-list-item-content>
+                </v-list-item>
+                <v-list-item @click='expandDialog = true'>
+                  <v-list-item-avatar><v-icon color='black'>{{ svgPathExpand }}</v-icon></v-list-item-avatar>
+                  <v-list-item-content>Développer</v-list-item-content>
+                </v-list-item>
                 <v-list-item @click='deleteDialog = true'>
                   <v-list-item-avatar><v-icon>{{ svgPathDelete }}</v-icon></v-list-item-avatar>
                   <v-list-item-content>Tout effacer</v-list-item-content>
@@ -37,7 +45,7 @@
                     </div>
                   </v-form>
                   <div style='display:flex;justify-content:space-around'>
-                    <v-btn width='150px' color='error' @click='multDialog = false'>Annuler</v-btn>
+                    <v-btn width='150px' text color='error' @click='multDialog = false'>Annuler</v-btn>
                     <v-btn width='150px' color='primary' @click='multiply'>Multiplier</v-btn>
                   </div>
                 </v-card-actions>
@@ -47,8 +55,125 @@
               <v-card>
                 <v-card-title>Effacer toutes les tuiles ?</v-card-title>
                 <v-card-actions style='display:flex;justify-content:center'>
-                  <v-btn width='150px' color='primary' @click='deleteDialog = false'>Annuler</v-btn>
+                  <v-btn width='150px' text color='primary' @click='deleteDialog = false'>Annuler</v-btn>
                   <v-btn width='150px' color='error' @click='clearAll'>Effacer tout</v-btn>
+                </v-card-actions>
+              </v-card>
+            </v-dialog>
+            <v-dialog width='400px' v-model="expandDialog">
+              <v-card>
+                <v-card-title>Développer l'expression ?</v-card-title>
+                <v-card-actions style='display:flex;justify-content:center'>
+                  <v-btn width='150px' text color='primary' @click='expandDialog = false'>Annuler</v-btn>
+                  <v-btn width='150px' color='error' @click='expandExpr'>Développer</v-btn>
+                </v-card-actions>
+              </v-card>
+            </v-dialog>
+            <v-dialog width='600px' v-model="insertDialog">
+              <v-card>
+                <v-card-title>Insérer une expression</v-card-title>
+                <v-card-text style='font-family:"Times new roman";font-size:32px'>
+                  <v-select style='font-size:24px' :items="expressionItems" v-model='exprType' label="Expression" outlined/>
+                  <v-window v-model='exprType'>
+                    <v-window-item :key='0'>
+                      Choose an expression
+                    </v-window-item>
+                    <v-window-item :key='1'>
+                      <div style='display:flex;align-items:baseline'>
+                        <span style='max-width:60px;'>
+                          <v-text-field style='font-size:24px' hide-details type='number' max='9' min='-9' v-model='exprCoeffs.a' solo/>
+                        </span>
+                        <span class='mx-2'>
+                          <i>x</i> +
+                        </span>
+                        <span style='width:60px;'>
+                          <v-text-field style='font-size:24px' hide-details type='number' max='9' min='-9' v-model='exprCoeffs.b' solo/>
+                        </span>
+                      </div>
+                    </v-window-item>
+                    <v-window-item :key='2'>
+                      <div style='display:flex;align-items:baseline'>
+                        <span style='max-width:60px;'>
+                          <v-text-field style='font-size:24px' hide-details type='number' max='9' min='-9' v-model='exprCoeffs.k' solo/>
+                        </span>
+                        <span class='mx-2'>
+                          (
+                        </span>
+                        <span style='max-width:60px;'>
+                          <v-text-field style='font-size:24px' hide-details type='number' max='9' min='-9' v-model='exprCoeffs.a' solo/>
+                        </span>
+                        <span class='mx-2'>
+                          <i>x</i> +
+                        </span>
+                        <span style='width:60px;'>
+                          <v-text-field style='font-size:24px' hide-details type='number' max='9' min='-9' v-model='exprCoeffs.b' solo/>
+                        </span>
+                        <span class='mx-2'>
+                          )
+                        </span>
+                      </div>
+                    </v-window-item>
+                    <v-window-item :key='3'>
+                      <div style='display:flex;align-items:baseline'>
+                        <span style='max-width:60px;'>
+                          <v-text-field style='font-size:24px' hide-details type='number' max='9' min='-9' v-model='exprCoeffs.k' solo/>
+                        </span>
+                        <span class='mx-2'>
+                          <i>x</i>(
+                        </span>
+                        <span style='max-width:60px;'>
+                          <v-text-field style='font-size:24px' hide-details type='number' max='9' min='-9' v-model='exprCoeffs.a' solo/>
+                        </span>
+                        <span class='mx-2'>
+                          <i>x</i> +
+                        </span>
+                        <span style='width:60px;'>
+                          <v-text-field style='font-size:24px' hide-details type='number' max='9' min='-9' v-model='exprCoeffs.b' solo/>
+                        </span>
+                        <span class='mx-2'>
+                          )
+                        </span>
+                      </div>
+                    </v-window-item>
+                    <v-window-item :key='4'>
+                      <div style='display:flex;align-items:baseline'>
+                        <span class='mx-2'>
+                          (
+                        </span>
+                        <span style='max-width:60px;'>
+                          <v-text-field style='font-size:24px' hide-details type='number' max='9' min='-9' v-model='exprCoeffs.c' solo/>
+                        </span>
+                        <span class='mx-2'>
+                          <i>x</i> +
+                        </span>
+                        <span style='width:60px;'>
+                          <v-text-field style='font-size:24px' hide-details type='number' max='9' min='-9' v-model='exprCoeffs.d' solo/>
+                        </span>
+                        <span class='mx-2'>
+                          )
+                        </span>
+                        <span class='mx-2'>
+                          (
+                        </span>
+                        <span style='max-width:60px;'>
+                          <v-text-field style='font-size:24px' hide-details type='number' max='9' min='-9' v-model='exprCoeffs.a' solo/>
+                        </span>
+                        <span class='mx-2'>
+                          <i>x</i> +
+                        </span>
+                        <span style='width:60px;'>
+                          <v-text-field style='font-size:24px' hide-details type='number' max='9' min='-9' v-model='exprCoeffs.b' solo/>
+                        </span>
+                        <span class='mx-2'>
+                          )
+                        </span>
+                      </div>
+                    </v-window-item>
+                  </v-window>
+                </v-card-text>
+                <v-card-actions style='display:flex;justify-content:flex-end'>
+                  <v-btn width='150px' text color='error' @click='insertDialog = false'>Annuler</v-btn>
+                  <v-btn width='150px' color='primary' @click='insertExpr'>Insérer</v-btn>
                 </v-card-actions>
               </v-card>
             </v-dialog>
@@ -75,12 +200,16 @@
             </div>
           </v-card>
       </v-col>
+      <v-col cols='12' style='position:relative'>
+        <v-switch v-model="autoFactor" label="Factoriser" style='position:absolute;top:-20px;right:0px;' @change='checkGroups'/>
+        <formulaDisplay :groups='groupsDims'/>
+      </v-col>
       <v-col cols="12" class='pb-0' style='display:flex'>
         <div style='width:40px'></div>
         <groupDimension
-          v-for='(dim, index) in groupsHzDims' :key='index'
-          :xes='dim.xes'
-          :ones='dim.ones'
+          v-for='(dim, index) in groupsDims' :key='index'
+          :xes='dim.h.xes'
+          :ones='dim.h.ones'
           style='margin-right:40px'
         />
       </v-col>
@@ -100,22 +229,31 @@
 <script>
   import tileStack from './tileStack';
   import groupDimension from './groupDimension';
-  import { mdiDelete, mdiDotsVertical, mdiCloseThick, mdiArrowLeftRightBold, mdiPlusMinusVariant } from '@mdi/js';
+  import formulaDisplay from './formulaDisplay';
+  import { mdiDelete, mdiDotsVertical, mdiCloseThick, mdiArrowLeftRightBold, mdiPlusMinusVariant, mdiPlusCircleOutline, mdiArrowExpandHorizontal } from '@mdi/js';
   import tileSpecs from '../tileSpecs';
 
   export default {
-    components: { tileStack, groupDimension },
+    components: { tileStack, groupDimension, formulaDisplay },
     name: 'mainDeck',
     data: () => ({
       svgPathDelete: mdiDelete,
       svgPathDots: mdiDotsVertical,
       svgPathMult: mdiCloseThick,
+      svgPathAdd: mdiPlusCircleOutline,
       svgPathFlat: mdiArrowLeftRightBold,
+      svgPathExpand: mdiArrowExpandHorizontal,
       pmIcon: mdiPlusMinusVariant,
+      autoFactor: true,
       inputPositive: true,
       deleteDialog: false,
       multDialog: false,
+      insertDialog: false,
+      expandDialog: false,
       multFactor: 1,
+      expressionItems: [{text: 'ax+b', value: 1}, {text: 'k(ax+b)', value: 2}, {text: 'kx(ax+b)', value: 3}, {text: '(ax+b)(cx+d)', value: 4}],
+      exprCoeffs: {a: 1, b: 1, c: 1, d: 1, k: 1},
+      exprType: null,
       tileGroups: [[], []],
       groupBases: [],
       margins: [true],
@@ -132,18 +270,37 @@
       ]
     }),
     computed:{
-      groupsHzDims(){
+      groupsDims(){
         let dims = [];
         let currentDim = {xes: 0, ones: 0};
+        let simplifiable = false
         this.tileGroups.forEach((group, index) => {
+          if(this.simplifiableGroups[index]) simplifiable = true;
           if(group.length > 0) {
+            let vxes = 0;
+            let vones = 0;
+            let gaps = [];
+            let href = null;
+            let posref = null;
+            group.forEach(tile => {
+              if(href){
+                gaps.push(tile.positive.h != posref || tile.h != href);
+              }
+              href = tile.h;
+              posref = tile.positive.h;
+              if(tile.v == 'x'){
+                vxes += tile.positive.v ? 1 : -1;
+              } else {
+                vones += tile.positive.v ? 1 : -1;
+              }
+            });
             if(group[0].h == 'x'){
               currentDim.xes += group[0].positive.h ? 1 : -1;
             } else {
               currentDim.ones += group[0].positive.h ? 1 : -1;
             }
             if(this.margins[index+1]){
-              dims.push(currentDim);
+              dims.push({h: currentDim, v: {xes: vxes, ones: vones}, consistent: !simplifiable && !gaps.some(g=>g)});
               currentDim = {xes: 0, ones: 0};
             }
           }
@@ -245,19 +402,49 @@
       });
     },
     methods:{
+      expandExpr(){
+        let tilesByType = {s: 0, x: 0, o: 0}
+        this.tileGroups.forEach(group => {
+          group.forEach(tile => {
+            if(tile.h == '1' && tile.v == '1'){
+              tilesByType.o += this.isPositive(tile) ? 1 : -1;
+            } else if(tile.h == 'x' && tile.v == 'x'){
+              tilesByType.s += this.isPositive(tile) ? 1 : -1;
+            } else {
+              tilesByType.x += this.isPositive(tile) ? 1 : -1;
+            }
+          });
+        });
+        this.tileGroups = [];
+        if(tilesByType.s != 0){
+          this.addGroup('xx', {h: tilesByType.s>0, v: true}, Math.abs(tilesByType.s));
+        }
+        if(tilesByType.x != 0){
+          console.log('x')
+          this.addGroup('x1', {h: tilesByType.x>0, v: true}, Math.abs(tilesByType.x));
+        }
+        if(tilesByType.o != 0){
+          this.addGroup('11', {h: tilesByType.o>0, v: true}, Math.abs(tilesByType.o));
+        }
+        this.autoFactor = false;
+        this.checkGroups();
+        this.expandDialog = false;
+      },
       isPositive(tile){
         return tile.positive.v && tile.positive.h || !tile.positive.v && !tile.positive.h;
       },
       simplifyGroup(index){
         let temp = this.tileGroups[index];
         this.tileGroups[index] = [];
-        temp.forEach(tile => {
-          if (tile.pair){
-            this.pairSets.filter(set => set.color == tile.pair)[0].used = false;
-          } else {
-            this.tileGroups[index].push(tile);
-          }
-        });
+        if(temp != undefined){
+          temp.forEach(tile => {
+            if (tile.pair){
+              this.pairSets.filter(set => set.color == tile.pair)[0].used = false;
+            } else {
+              this.tileGroups[index].push(tile);
+            }
+          });
+        }
         this.checkGroups();
       },
       toggleSign(){
@@ -265,9 +452,11 @@
       },
       checkGroups(){
         let tempArray = this.tileGroups;
+        let nbGroups = 0;
         this.tileGroups = [];
         tempArray.forEach(group => {
-          if(group.length > 0){
+          if(group.length > 0 && nbGroups <= 7){
+            nbGroups++;
             this.tileGroups.push(group);
           }
         });
@@ -321,6 +510,7 @@
         if(group1 == undefined || group2 == undefined) return false;
         if(!this.isConsistent(group1) || !this.isConsistent(group2)) return false;
         if(group1.length != group2.length) return false;
+        if(group1[0].h != group2[0].h && !this.autoFactor) return false;
         for(let i=0; i<group1.length; i++){
           if(group1[i].v != group2[i].v || group1[i].positive.v != group2[i].positive.v) return false;
         }
@@ -338,6 +528,78 @@
         });
         return consistent;
       },
+      insertExpr(){
+        switch(this.exprType){
+          case 1:
+            this.addGroup('x1', {h: this.exprCoeffs.a > 0, v: true}, Math.abs(this.exprCoeffs.a));
+            this.addGroup('11', {h: this.exprCoeffs.b > 0, v: true}, Math.abs(this.exprCoeffs.b));
+          break;
+          case 2:
+            for(let i=0 ; i < Math.abs(this.exprCoeffs.a) ; i++){
+              this.addGroup('x1', {h: this.exprCoeffs.a > 0, v: this.exprCoeffs.k > 0}, Math.abs(this.exprCoeffs.k));
+            }
+            for(let i=0 ; i < Math.abs(this.exprCoeffs.b) ; i++){
+              this.addGroup('11', {h: this.exprCoeffs.b > 0, v: this.exprCoeffs.k > 0}, Math.abs(this.exprCoeffs.k));
+            }
+          break;
+          case 3:
+            for(let i=0 ; i < Math.abs(this.exprCoeffs.a) ; i++){
+              this.addGroup('x1', {h: this.exprCoeffs.a > 0, v: this.exprCoeffs.k > 0}, Math.abs(this.exprCoeffs.k));
+            }
+            for(let i=0 ; i < Math.abs(this.exprCoeffs.b) ; i++){
+              this.addGroup('11', {h: this.exprCoeffs.b > 0, v: this.exprCoeffs.k > 0}, Math.abs(this.exprCoeffs.k));
+            }
+          break;
+          case 4:
+            for(let i=0 ; i<Math.abs(this.exprCoeffs.a) ; i++){
+              this.addMixedGroup(
+                {type: 'xx', positive: {h: this.exprCoeffs.a>0, v: this.exprCoeffs.c>0}, nb: Math.abs(this.exprCoeffs.c)},
+                {type: 'x1', positive: {h: this.exprCoeffs.a>0, v: this.exprCoeffs.d>0}, nb: Math.abs(this.exprCoeffs.d)}
+              );
+            }
+            for(let i=0 ; i<Math.abs(this.exprCoeffs.b) ; i++){
+              this.addMixedGroup(
+                {type: '1x', positive: {h: this.exprCoeffs.b>0, v: this.exprCoeffs.c>0}, nb: Math.abs(this.exprCoeffs.c)},
+                {type: '11', positive: {h: this.exprCoeffs.b>0, v: this.exprCoeffs.d>0}, nb: Math.abs(this.exprCoeffs.d)}
+              );
+            }
+          break;
+        }
+        this.checkGroups();
+        this.insertDialog = false;
+      },
+      addGroup(type, positive, nb){
+        let newId = 1;
+        this.tileGroups.forEach(group => {
+          group.forEach(tile => {
+            newId = Math.max(newId, tile.id + 1);
+          });
+        });
+        let newGroup = [];
+        for(let i=0 ; i<nb ; i++){
+          newGroup.push({v: type.charAt(1), h: type.charAt(0), positive: {h: positive.h, v: positive.v}, pair: null, id: newId});
+          newId++;
+        }
+        this.tileGroups.push(newGroup);
+      },
+      addMixedGroup(group1, group2){
+        let newId = 1;
+        this.tileGroups.forEach(group => {
+          group.forEach(tile => {
+            newId = Math.max(newId, tile.id + 1);
+          });
+        });
+        let newGroup = [];
+        for(let i=0 ; i<group1.nb ; i++){
+          newGroup.push({v: group1.type.charAt(1), h: group1.type.charAt(0), positive: {h: group1.positive.h, v: group1.positive.v}, pair: null, id: newId});
+          newId++;
+        }
+        for(let i=0 ; i<group2.nb ; i++){
+          newGroup.push({v: group2.type.charAt(1), h: group2.type.charAt(0), positive: {h: group2.positive.h, v: group2.positive.v}, pair: null, id: newId});
+          newId++;
+        }
+        this.tileGroups.push(newGroup);
+      },
       addTile(type){
         let newId = 1;
         this.tileGroups.forEach(group => {
@@ -353,9 +615,9 @@
           k--;
         }
         if(this.tileGroups[k][0] == undefined || (this.tileGroups[k][0].h == newH && this.tileGroups[k][0].v == newV)){
-          this.tileGroups[k].push({v: newV, h: newH, positive: {h: true, v: this.inputPositive}, pair: null, id: newId});
+          this.tileGroups[k].push({v: newV, h: newH, positive: {h: this.inputPositive, v: true}, pair: null, id: newId});
         } else {
-          this.tileGroups.push([{v: newV, h: newH, positive: {h: true, v: this.inputPositive}, pair: null, id: newId}]);
+          this.tileGroups.push([{v: newV, h: newH, positive: {h: this.inputPositive, v: true}, pair: null, id: newId}]);
         }
         this.checkGroups();
       },
@@ -379,7 +641,7 @@
           allTiles.forEach(tile => {
             let group = [];
             for(let k=0; k<this.multFactor; k++){
-              group.push({v:tile.v, h:tile.h, id});
+              group.push({v:tile.v, h:tile.h, positive: tile.positive, id});
               id++;
             }
             this.tileGroups.push(group);

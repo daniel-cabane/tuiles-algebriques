@@ -21,7 +21,7 @@ const tileSpecs = {
         text: 'x',
         positive: true,
         exp: null,
-        color: '#FFFDDE',
+        color: '#FEDE00',
         fontColor: 'black',
         italic: true,
         botAdjust: 10
@@ -30,7 +30,7 @@ const tileSpecs = {
         text: 'x',
         positive: false,
         exp: null,
-        color: '#FFC900',
+        color: '#f2b400',
         fontColor: 'white',
         italic: true,
         botAdjust: 10

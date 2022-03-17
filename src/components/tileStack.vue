@@ -63,18 +63,6 @@ export default {
     showDimension(){
       return this.margin && this.groupData.noGaps && !this.simplifiable;
     }
-    // groupHeight(){
-    //   let xes = 0;
-    //   let ones = 0;
-    //   this.tileGroup.forEach(tile => {
-    //     if(tile.v == 'x'){
-    //       xes++;
-    //     } else {
-    //       ones++;
-    //     }
-    //   });
-    //   return {xes, ones};
-    // }
   },
   methods: {
     checkGroups(){

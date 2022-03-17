@@ -27,9 +27,10 @@ export default {
         return `${this.xes}<i>x</i>`;
       }
       if(this.xes == 0) return `${this.ones}`;
-      if(this.xes == 1) return this.ones > 0 ? `<i>x</i>+${this.ones}` : `<i>x</i>–${-this.ones}`;
-      if(this.xes == -1) return this.ones > 0 ? `–<i>x</i>+${this.ones}` : `–<i>x</i>–${-this.ones}`;
-      return this.ones > 0 ? `${this.xes}<i>x</i>+${this.ones}` : `${this.xes}<i>x</i>–${-this.ones}`;
+      if(this.xes == 1) return this.ones > 0 ? `<i>x</i> + ${this.ones}` : `<i>x</i> – ${-this.ones}`;
+      if(this.xes == -1) return this.ones > 0 ? `–<i>x</i> + ${this.ones}` : `–<i>x</i> – ${-this.ones}`;
+      if(this.xes < 0) return this.ones > 0 ? `–${-this.xes}<i>x</i> + ${this.ones}` : `–${-this.xes}<i>x</i> – ${-this.ones}`;
+      return this.ones > 0 ? `${this.xes}<i>x</i> + ${this.ones}` : `${this.xes}<i>x</i> – ${-this.ones}`;
     },
     show(){
       return this.xes != 0 || this.ones != 0;

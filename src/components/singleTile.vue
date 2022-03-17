@@ -4,8 +4,7 @@
         tile flat
         slot-scope="{ hover }"
         :width='tileWidth' :height="tileHeight"
-        :color="tileSpecs.color"
-        :style='`color:${tileSpecs.fontColor}`'
+        :style='`color:${tileSpecs.fontColor};${bgColor}`'
         style='display:flex;align-content:center;justify-content:center;font-family:"Times new roman";position:relative;'
     >
       <div style='position:absolute;top:0;left:0;width:5px;height:100%' :style='`background:${stripesColor.v}`'/>
@@ -60,6 +59,12 @@ export default {
       rotatePortrait: mdiPhoneRotatePortrait
     }),
     computed: {
+      bgColor() {
+        if(this.pairColor){
+          return `background:repeating-linear-gradient(45deg,${this.tileSpecs.color},${this.tileSpecs.color} 10px,${this.pairColor} 10px,${this.pairColor} 20px);`
+        }
+        return `background:${this.tileSpecs.color}`;
+      },
       positiveTile(){
         return this.positive.v && this.positive.h || !this.positive.v && !this.positive.h;
       },
@@ -84,13 +89,9 @@ export default {
           return this.v == 'x' ? 130 : 80;
       },
       stripesColor(){
-        return {h: this.borderColor(this.h, this.positive.h), v: this.borderColor(this.v, this.positive.v)};
-      },
-      // bordersStyle(){
-      //   const hColor = this.borderColor(this.h, this.positive.h);
-      //   const vColor = this.borderColor(this.v, this.positive.v);
-      //   return `border-top-color:${hColor};border-bottom-color:${hColor};border-left-color:${vColor};border-right-color:${vColor};`;
-      // }
+        return {h: this.positive.h ? 'white' : 'black', v: this.positive.v ? 'white' : 'black'};
+        // return {h: this.borderColor(this.h, this.positive.h), v: this.borderColor(this.v, this.positive.v)};
+      }
     },
     methods: {
         borderColor(type, positive){
