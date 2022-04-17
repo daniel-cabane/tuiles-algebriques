@@ -21,7 +21,7 @@
                   <v-list-item-avatar><v-icon :color='!isFlat ? "grey lighten-1" : "black"'>{{ svgPathMult }}</v-icon></v-list-item-avatar>
                   <v-list-item-content>Multiplier</v-list-item-content>
                 </v-list-item>
-                <v-list-item @click='insertDialog = true'>
+                <v-list-item @click='initInsertDialog'>
                   <v-list-item-avatar><v-icon color='black'>{{ svgPathAdd }}</v-icon></v-list-item-avatar>
                   <v-list-item-content>Insérer</v-list-item-content>
                 </v-list-item>
@@ -71,7 +71,31 @@
             </v-dialog>
             <v-dialog width='600px' v-model="insertDialog">
               <v-card>
-                <v-card-title>Insérer une expression</v-card-title>
+                <v-card-title style='display:flex;justify-content:space-between;align-items:center'>
+                  <span>
+                    Insérer une expression
+                  </span>
+                  <span style='position:relative'>
+                    <span style='position:absolute;top:-10px;left:px' class='caption grey--text'>
+                      Negative coefficients
+                    </span>
+                    <v-btn icon small @click='negativeCoeffs.a = !negativeCoeffs.a'>
+                      <v-icon small :color='negativeCoeffs.a ? "primary" : "grey"'>{{ aIcon }}</v-icon>
+                    </v-btn>
+                    <v-btn icon small @click='negativeCoeffs.b = !negativeCoeffs.b'>
+                      <v-icon small :color='negativeCoeffs.b ? "primary" : "grey"'>{{ bIcon }}</v-icon>
+                    </v-btn>
+                    <v-btn icon small @click='negativeCoeffs.c = !negativeCoeffs.c'>
+                      <v-icon small :color='negativeCoeffs.c ? "primary" : "grey"'>{{ cIcon }}</v-icon>
+                    </v-btn>
+                    <v-btn icon small @click='negativeCoeffs.d = !negativeCoeffs.d'>
+                      <v-icon small :color='negativeCoeffs.d ? "primary" : "grey"'>{{ dIcon }}</v-icon>
+                    </v-btn>
+                    <v-btn icon large @click='randomCoeffs'>
+                      <v-icon large>{{ refreshIcon }}</v-icon>
+                    </v-btn>
+                  </span>
+                </v-card-title>
                 <v-card-text style='font-family:"Times new roman";font-size:32px'>
                   <v-select style='font-size:24px' :items="expressionItems" v-model='exprType' label="Expression" outlined/>
                   <v-window v-model='exprType'>
@@ -94,7 +118,7 @@
                     <v-window-item :key='2'>
                       <div style='display:flex;align-items:baseline'>
                         <span style='max-width:60px;'>
-                          <v-text-field style='font-size:24px' hide-details type='number' max='9' min='-9' v-model='exprCoeffs.k' solo/>
+                          <v-text-field style='font-size:24px' hide-details type='number' max='9' min='-9' v-model='exprCoeffs.c' solo/>
                         </span>
                         <span class='mx-2'>
                           (
@@ -116,7 +140,7 @@
                     <v-window-item :key='3'>
                       <div style='display:flex;align-items:baseline'>
                         <span style='max-width:60px;'>
-                          <v-text-field style='font-size:24px' hide-details type='number' max='9' min='-9' v-model='exprCoeffs.k' solo/>
+                          <v-text-field style='font-size:24px' hide-details type='number' max='9' min='-9' v-model='exprCoeffs.c' solo/>
                         </span>
                         <span class='mx-2'>
                           <i>x</i>(
@@ -141,13 +165,13 @@
                           (
                         </span>
                         <span style='max-width:60px;'>
-                          <v-text-field style='font-size:24px' hide-details type='number' max='9' min='-9' v-model='exprCoeffs.c' solo/>
+                          <v-text-field style='font-size:24px' hide-details type='number' max='9' min='-9' v-model='exprCoeffs.a' solo/>
                         </span>
                         <span class='mx-2'>
                           <i>x</i> +
                         </span>
                         <span style='width:60px;'>
-                          <v-text-field style='font-size:24px' hide-details type='number' max='9' min='-9' v-model='exprCoeffs.d' solo/>
+                          <v-text-field style='font-size:24px' hide-details type='number' max='9' min='-9' v-model='exprCoeffs.b' solo/>
                         </span>
                         <span class='mx-2'>
                           )
@@ -156,13 +180,13 @@
                           (
                         </span>
                         <span style='max-width:60px;'>
-                          <v-text-field style='font-size:24px' hide-details type='number' max='9' min='-9' v-model='exprCoeffs.a' solo/>
+                          <v-text-field style='font-size:24px' hide-details type='number' max='9' min='-9' v-model='exprCoeffs.c' solo/>
                         </span>
                         <span class='mx-2'>
                           <i>x</i> +
                         </span>
                         <span style='width:60px;'>
-                          <v-text-field style='font-size:24px' hide-details type='number' max='9' min='-9' v-model='exprCoeffs.b' solo/>
+                          <v-text-field style='font-size:24px' hide-details type='number' max='9' min='-9' v-model='exprCoeffs.d' solo/>
                         </span>
                         <span class='mx-2'>
                           )
@@ -230,7 +254,7 @@
   import tileStack from './tileStack';
   import groupDimension from './groupDimension';
   import formulaDisplay from './formulaDisplay';
-  import { mdiDelete, mdiDotsVertical, mdiCloseThick, mdiArrowLeftRightBold, mdiPlusMinusVariant, mdiPlusCircleOutline, mdiArrowExpandHorizontal } from '@mdi/js';
+  import { mdiDelete, mdiRefresh , mdiDotsVertical, mdiCloseThick, mdiArrowLeftRightBold, mdiPlusMinusVariant, mdiPlusCircleOutline, mdiArrowExpandHorizontal, mdiAlphaACircle, mdiAlphaBCircle, mdiAlphaCCircle, mdiAlphaDCircle } from '@mdi/js';
   import tileSpecs from '../tileSpecs';
 
   export default {
@@ -244,6 +268,11 @@
       svgPathFlat: mdiArrowLeftRightBold,
       svgPathExpand: mdiArrowExpandHorizontal,
       pmIcon: mdiPlusMinusVariant,
+      aIcon: mdiAlphaACircle,
+      bIcon: mdiAlphaBCircle,
+      cIcon: mdiAlphaCCircle,
+      dIcon: mdiAlphaDCircle,
+      refreshIcon: mdiRefresh,
       autoFactor: true,
       inputPositive: true,
       deleteDialog: false,
@@ -251,7 +280,8 @@
       insertDialog: false,
       expandDialog: false,
       multFactor: 1,
-      expressionItems: [{text: 'ax+b', value: 1}, {text: 'k(ax+b)', value: 2}, {text: 'kx(ax+b)', value: 3}, {text: '(ax+b)(cx+d)', value: 4}],
+      expressionItems: [{text: 'ax+b', value: 1}, {text: 'c(ax+b)', value: 2}, {text: 'cx(ax+b)', value: 3}, {text: '(ax+b)(cx+d)', value: 4}],
+      negativeCoeffs: {a: false, b: false, c: false, d: false},
       exprCoeffs: {a: 1, b: 1, c: 1, d: 1, k: 1},
       exprType: null,
       tileGroups: [[], []],
@@ -420,7 +450,6 @@
           this.addGroup('xx', {h: tilesByType.s>0, v: true}, Math.abs(tilesByType.s));
         }
         if(tilesByType.x != 0){
-          console.log('x')
           this.addGroup('x1', {h: tilesByType.x>0, v: true}, Math.abs(tilesByType.x));
         }
         if(tilesByType.o != 0){
@@ -536,31 +565,31 @@
           break;
           case 2:
             for(let i=0 ; i < Math.abs(this.exprCoeffs.a) ; i++){
-              this.addGroup('x1', {h: this.exprCoeffs.a > 0, v: this.exprCoeffs.k > 0}, Math.abs(this.exprCoeffs.k));
+              this.addGroup('x1', {h: this.exprCoeffs.a > 0, v: this.exprCoeffs.c > 0}, Math.abs(this.exprCoeffs.c));
             }
             for(let i=0 ; i < Math.abs(this.exprCoeffs.b) ; i++){
-              this.addGroup('11', {h: this.exprCoeffs.b > 0, v: this.exprCoeffs.k > 0}, Math.abs(this.exprCoeffs.k));
+              this.addGroup('11', {h: this.exprCoeffs.b > 0, v: this.exprCoeffs.c > 0}, Math.abs(this.exprCoeffs.c));
             }
           break;
           case 3:
             for(let i=0 ; i < Math.abs(this.exprCoeffs.a) ; i++){
-              this.addGroup('x1', {h: this.exprCoeffs.a > 0, v: this.exprCoeffs.k > 0}, Math.abs(this.exprCoeffs.k));
+              this.addGroup('x1', {h: this.exprCoeffs.a > 0, v: this.exprCoeffs.c > 0}, Math.abs(this.exprCoeffs.c));
             }
             for(let i=0 ; i < Math.abs(this.exprCoeffs.b) ; i++){
-              this.addGroup('11', {h: this.exprCoeffs.b > 0, v: this.exprCoeffs.k > 0}, Math.abs(this.exprCoeffs.k));
+              this.addGroup('11', {h: this.exprCoeffs.b > 0, v: this.exprCoeffs.c > 0}, Math.abs(this.exprCoeffs.c));
             }
           break;
           case 4:
             for(let i=0 ; i<Math.abs(this.exprCoeffs.a) ; i++){
               this.addMixedGroup(
-                {type: 'xx', positive: {h: this.exprCoeffs.a>0, v: this.exprCoeffs.c>0}, nb: Math.abs(this.exprCoeffs.c)},
-                {type: 'x1', positive: {h: this.exprCoeffs.a>0, v: this.exprCoeffs.d>0}, nb: Math.abs(this.exprCoeffs.d)}
+                {type: 'xx', positive: {h: this.exprCoeffs.a > 0, v: this.exprCoeffs.c > 0}, nb: Math.abs(this.exprCoeffs.c)},
+                {type: 'x1', positive: {h: this.exprCoeffs.a > 0, v: this.exprCoeffs.d > 0}, nb: Math.abs(this.exprCoeffs.d)}
               );
             }
             for(let i=0 ; i<Math.abs(this.exprCoeffs.b) ; i++){
               this.addMixedGroup(
-                {type: '1x', positive: {h: this.exprCoeffs.b>0, v: this.exprCoeffs.c>0}, nb: Math.abs(this.exprCoeffs.c)},
-                {type: '11', positive: {h: this.exprCoeffs.b>0, v: this.exprCoeffs.d>0}, nb: Math.abs(this.exprCoeffs.d)}
+                {type: '1x', positive: {h: this.exprCoeffs.b > 0, v: this.exprCoeffs.c > 0}, nb: Math.abs(this.exprCoeffs.c)},
+                {type: '11', positive: {h: this.exprCoeffs.b > 0, v: this.exprCoeffs.d > 0}, nb: Math.abs(this.exprCoeffs.d)}
               );
             }
           break;
@@ -654,6 +683,26 @@
       clearAll(){
         this.tileGroups = [[],[]];
         this.deleteDialog = false;
+      },
+      initInsertDialog(){
+        this.randomCoeffs();
+        this.insertDialog = true;
+      },
+      randomInt(negative) {
+        let min = negative ? -9 : 1;
+        let nb = Math.floor(Math.random() * (9 - min + 1) + min);
+        while(nb == 0){
+          nb = Math.floor(Math.random() * (9 - min + 1) + min);
+        }
+        return nb;
+      },
+      randomCoeffs(){
+        this.exprCoeffs = {
+          a: this.randomInt(this.negativeCoeffs.a),
+          b: this.randomInt(this.negativeCoeffs.b),
+          c: this.randomInt(this.negativeCoeffs.c),
+          d: this.randomInt(this.negativeCoeffs.d)
+        }
       }
     }
   }
